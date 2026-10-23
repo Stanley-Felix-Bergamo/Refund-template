@@ -3,6 +3,7 @@ const amount = document.getElementById("amount");
 const expense = document.getElementById("expense");
 const category = document.getElementById("category");
 const expenseList = document.querySelector("ul");
+const expensesQuantity = document.querySelector("aside header p span");
 
 //Capturando o evento de input para formatar o valor.
 amount.oninput = () => {
@@ -34,6 +35,7 @@ form.onsubmit = (event) => {
   expenseAdd(newExpense);
 };
 
+//Adiciona um novo item na lista
 function expenseAdd(newExpense) {
   try {
     const expeseItem = document.createElement("li");
@@ -55,13 +57,36 @@ function expenseAdd(newExpense) {
     expeseCategory.textContent = newExpense.category_name;
 
     expenseInfo.append(expenseName, expeseCategory);
-    expeseItem.append(expenseIcon, expenseInfo);
+
+    const expenseAmout = document.createElement("span");
+    expenseAmout.classList.add("expense-amount");
+    expenseAmout.innerHTML = `<small>R$</small>${newExpense.amount.toUpperCase().replace("R$", "")}`;
+
+    const removeIcon = document.createElement("img");
+    removeIcon.classList.add("remove-icon");
+    removeIcon.setAttribute("src", "img/remove.svg");
+    removeIcon.setAttribute("alt", "remover");
+
+    expeseItem.append(expenseIcon, expenseInfo, expenseAmout, removeIcon);
     expenseList.append(expeseItem);
 
     expenseIcon.setAttribute("src", `img/${newExpense.category_id}.svg`);
     expenseIcon.setAttribute("alt", newExpense.category_name);
+
+    //Atualiza os totais
+    updateTotals();
   } catch (error) {
     alert("Não foi possivel atualizar a lista de despesas.");
     console.log(error);
+  }
+}
+
+function updateTotals() {
+  try {
+    const items = expenseList.children;
+    expensesQuantity.textContent = `${items.length} ${items.length > 1 ? "despesas" : "despesa"}`;
+  } catch (error) {
+    console.log(error);
+    alert("Não foi possivel atualizar os totais.");
   }
 }
