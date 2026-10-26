@@ -4,6 +4,7 @@ const expense = document.getElementById("expense");
 const category = document.getElementById("category");
 const expenseList = document.querySelector("ul");
 const expensesQuantity = document.querySelector("aside header p span");
+const expensesTotal = document.querySelector("aside header h2");
 
 //Capturando o evento de input para formatar o valor.
 amount.oninput = () => {
@@ -73,6 +74,8 @@ function expenseAdd(newExpense) {
     expenseIcon.setAttribute("src", `img/${newExpense.category_id}.svg`);
     expenseIcon.setAttribute("alt", newExpense.category_name);
 
+    formClear();
+
     //Atualiza os totais
     updateTotals();
   } catch (error) {
@@ -85,8 +88,51 @@ function updateTotals() {
   try {
     const items = expenseList.children;
     expensesQuantity.textContent = `${items.length} ${items.length > 1 ? "despesas" : "despesa"}`;
+
+    let total = 0;
+
+    for (let item = 0; item < items.length; item++) {
+      const itemAmount = items[item].querySelector(".expense-amount");
+
+      //Remover caracteres não numericos
+      let value = itemAmount.textContent
+        .replace(/[^\d,]/g, "")
+        .replace(",", ".");
+
+      value = parseFloat(value);
+
+      if (isNaN(value)) {
+        return alert("O valor não parece ser um número.");
+      }
+      total += Number(value);
+    }
+
+    const symbolBRL = document.createElement("small");
+    symbolBRL.textContent = "R$";
+
+    total = formatCurrencyBRL(total).toUpperCase().replace("R$", "");
+    expensesTotal.innerHTML = "";
+
+    expensesTotal.append(symbolBRL, total);
   } catch (error) {
     console.log(error);
     alert("Não foi possivel atualizar os totais.");
   }
+}
+
+expenseList.addEventListener("click", (e) => {
+  if (e.target.classList.contains("remove-icon")) {
+    // Obtém a <li> pai do elemento clicado
+    const item = e.target.closest(".expense");
+    item.remove();
+  }
+  updateTotals();
+});
+
+function formClear() {
+  expense.value = "";
+  category.value = "";
+  amount.value = "";
+
+  expense.focus();
 }
